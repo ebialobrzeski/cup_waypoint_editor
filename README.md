@@ -11,20 +11,66 @@ A graphical editor for XCSoar CUP waypoint files with CSV import/export capabili
 - **Full CRUD Operations**: Create, Read, Update, Delete waypoints
 - **Automatic Elevation**: Fetches elevation data from Open-Elevation API
 - **Multiple Waypoint Types**: Supports all 21 XCSoar waypoint styles
+- **Modern Architecture**: Modular package structure following Python best practices
+
+## Project Structure
+
+```
+cup_waypoint_editor/
+├── src/
+│   └── xcsoar_editor/          # Main package
+│       ├── __init__.py          # Package exports
+│       ├── __main__.py          # Entry point
+│       ├── config.py            # Configuration and constants
+│       ├── models.py            # Waypoint data model
+│       ├── utils.py             # Coordinate conversion utilities
+│       ├── file_io.py           # CUP/CSV file operations
+│       └── gui/                 # GUI components
+│           ├── __init__.py
+│           ├── main_window.py   # Main application window
+│           └── dialogs.py       # Dialog windows
+├── xcsoar_gui_editor.py         # Legacy launcher (for backwards compatibility)
+├── requirements.txt             # Dependencies
+├── setup.py                     # Package setup (setuptools)
+├── pyproject.toml               # Modern package configuration
+└── README.md                    # This file
+```
 
 ## Installation
 
 ### Requirements
-- Python 3.7 or higher
+- Python 3.8 or higher
 - `requests` library
 
-### Setup
+### Option 1: Development Installation (Recommended)
+
+```powershell
+# Install in editable mode
+pip install -e .
+
+# Run from anywhere
+xcsoar-editor
+```
+
+### Option 2: Direct Installation
+
+```powershell
+# Install package
+pip install .
+
+# Run from anywhere
+xcsoar-editor
+```
+
+### Option 3: Run Without Installation
 
 ```powershell
 # Install dependencies
-python -m pip install requests
+pip install -r requirements.txt
 
-# Run the application
+# Run directly
+python -m xcsoar_editor
+# OR use the legacy launcher
 python xcsoar_gui_editor.py
 ```
 
@@ -41,9 +87,10 @@ python xcsoar_gui_editor.py
 
 ### Editing Waypoints
 1. **Add**: Click "Add Point" to create a new waypoint
-   - Enter name, latitude, and longitude in separate fields
+   - Enter name, latitude, and longitude in decimal degrees format
+   - Example: 52.765234, 23.186700
    - Select waypoint style from dropdown
-2. **Edit**: Select a waypoint and click "Edit Selected"
+2. **Edit**: Select a waypoint and click "Edit Selected" (or double-click the row)
 3. **Remove**: Select waypoint(s) and click "Remove Selected"
 4. **Sort**: Click the "Name" column header to sort alphabetically
 
