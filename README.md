@@ -1,17 +1,30 @@
 # XCSoar CUP Waypoint Editor
 
-A graphical editor for XCSoar CUP waypoint files with CSV import/export capabilities.
+A professional graphical editor for XCSoar CUP waypoint files with **full SeeYou CUP format support** and CSV import/export capabilities.
 
 ## Features
 
-- **Primary Format**: CUP files (.cup)
-- **CSV Support**: Import/Export CSV files as secondary format
+### Core Features
+- **Complete CUP Format Support**: All 12 fields (name, code, country, coordinates, elevation, style, runway info, frequency, description)
+- **Enhanced Dialog**: 3-tab interface for basic info, airfield data, and details
+- **Extended Tree View**: 8 columns showing all important waypoint information
+- **CSV Support**: Full import/export with all fields preserved
 - **In-Memory Editing**: Changes only saved when you explicitly click Save
 - **Unsaved Changes Protection**: Warns you before closing with unsaved changes
+
+### Waypoint Management
 - **Full CRUD Operations**: Create, Read, Update, Delete waypoints
+- **All 21 Waypoint Types**: Complete style support (waypoints, airfields, mountains, etc.)
+- **Airfield Support**: Runway direction, length, width, and radio frequency
 - **Automatic Elevation**: Fetches elevation data from Open-Elevation API
-- **Multiple Waypoint Types**: Supports all 21 XCSoar waypoint styles
+- **Field Validation**: Comprehensive validation for all input fields
+- **Precision Coordinates**: 5 decimal place precision in DDMM format
+
+### Technical Features
 - **Modern Architecture**: Modular package structure following Python best practices
+- **Professional Structure**: Proper separation of concerns (models, file I/O, GUI, utilities)
+- **Type Safety**: Type hints throughout the codebase
+- **Comprehensive Documentation**: Detailed docstrings and user guides
 
 ## Project Structure
 

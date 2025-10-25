@@ -49,7 +49,7 @@ def parse_cup_file(filepath: str) -> List[Waypoint]:
         lines = f.readlines()
     
     # Skip header line
-    for line in lines[1:]:
+    for line_num, line in enumerate(lines[1:], start=2):
         line = line.strip()
         if not line:
             continue
@@ -83,10 +83,10 @@ def parse_cup_file(filepath: str) -> List[Waypoint]:
             # Parse elevation
             elev = None
             if elev_str:
-                # Remove 'm' suffix if present
-                elev_str = elev_str.rstrip('m')
+                # Remove 'm' or 'ft' suffix if present
+                elev_str_clean = elev_str.lower().rstrip('mft').strip()
                 try:
-                    elev = float(elev_str)
+                    elev = float(elev_str_clean)
                 except ValueError:
                     pass
             
@@ -94,10 +94,10 @@ def parse_cup_file(filepath: str) -> List[Waypoint]:
                 name=name,
                 latitude=lat,
                 longitude=lon,
-                style=style,
                 code=code,
                 country=country,
                 elevation=elev,
+                style=style,
                 runway_direction=rwdir,
                 runway_length=rwlen,
                 runway_width=rwwidth,
@@ -106,7 +106,7 @@ def parse_cup_file(filepath: str) -> List[Waypoint]:
             )
             waypoints.append(waypoint)
         except Exception as e:
-            print(f"Error parsing line: {line}\nError: {e}")
+            print(f"Error parsing line {line_num}: {line}\nError: {e}")
             continue
     
     return waypoints
@@ -132,18 +132,50 @@ def write_cup_file(filepath: str, waypoints: List[Waypoint], fetch_elevation: bo
         else:
             elev = 0.0
         
-        # Generate description if not provided
-        desc = waypoint.description
-        if not desc:
-            style_name = STYLE_OPTIONS.get(waypoint.style, 'Point')
-            desc = f"{style_name}: {waypoint.name}"
+        # Use description as-is (preserve empty descriptions)
+        desc = waypoint.description if waypoint.description else ""
         
         # Convert coordinates to DDMM format
         lat_str = deg_to_ddmm(waypoint.latitude, True)
         lon_str = deg_to_ddmm(waypoint.longitude, False)
         
-        # Build row
-        row = f'"{waypoint.name}",{waypoint.code},{waypoint.country},{lat_str},{lon_str},{elev:.1f}m,{waypoint.style},{waypoint.runway_direction},{waypoint.runway_length},{waypoint.runway_width},"{waypoint.frequency}","{desc}"'
+        # Format code and country (use defaults if empty)
+        code = waypoint.code if waypoint.code else ""
+        country = waypoint.country if waypoint.country else ""
+        
+        # Format runway information
+        rwdir = waypoint.runway_direction if waypoint.runway_direction else ""
+        rwlen = waypoint.runway_length if waypoint.runway_length else ""
+        rwwidth = waypoint.runway_width if waypoint.runway_width else ""
+        
+        # Format frequency - only quote if it's empty or contains non-numeric text
+        freq = waypoint.frequency if waypoint.frequency else ""
+        if freq and not freq.replace('.', '').replace(',', '').isdigit():
+            freq_formatted = f'"{freq}"'  # Quote if it's text
+        else:
+            freq_formatted = freq  # Don't quote numeric frequencies
+        
+        # Format description - only quote if not empty
+        if desc:
+            desc_formatted = f'"{desc}"'
+        else:
+            desc_formatted = ''
+        
+        # Build row - Quote fields that may contain special characters
+        row = (
+            f'"{waypoint.name}",'
+            f'{code},'
+            f'{country},'
+            f'{lat_str},'
+            f'{lon_str},'
+            f'{elev:.1f}m,'
+            f'{waypoint.style},'
+            f'{rwdir},'
+            f'{rwlen},'
+            f'{rwwidth},'
+            f'{freq_formatted},'
+            f'{desc_formatted}'
+        )
         rows.append(row)
     
     with open(filepath, "w", encoding="utf-8") as f:
@@ -164,17 +196,25 @@ def parse_csv_file(filepath: str) -> List[Waypoint]:
     
     with open(filepath, newline='', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
-        for row in reader:
+        for row_num, row in enumerate(reader, start=2):
             try:
                 waypoint = Waypoint(
                     name=row.get('name', ''),
                     latitude=float(row['latitude']),
                     longitude=float(row['longitude']),
-                    style=int(row.get('style', 1))
+                    code=row.get('code', ''),
+                    country=row.get('country', ''),
+                    elevation=float(row['elevation']) if row.get('elevation') else None,
+                    style=int(row.get('style', 1)),
+                    runway_direction=row.get('runway_direction', ''),
+                    runway_length=row.get('runway_length', ''),
+                    runway_width=row.get('runway_width', ''),
+                    frequency=row.get('frequency', ''),
+                    description=row.get('description', '')
                 )
                 waypoints.append(waypoint)
             except (ValueError, KeyError) as e:
-                print(f"Skipping invalid CSV row: {row}, Error: {e}")
+                print(f"Skipping invalid CSV row {row_num}: {row}, Error: {e}")
                 continue
     
     return waypoints
@@ -189,13 +229,25 @@ def write_csv_file(filepath: str, waypoints: List[Waypoint]) -> None:
         waypoints: List of Waypoint objects to save
     """
     with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
-        fieldnames = ['name', 'latitude', 'longitude', 'style']
+        fieldnames = [
+            'name', 'code', 'country', 'latitude', 'longitude', 'elevation', 
+            'style', 'runway_direction', 'runway_length', 'runway_width', 
+            'frequency', 'description'
+        ]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         for waypoint in waypoints:
             writer.writerow({
                 'name': waypoint.name,
+                'code': waypoint.code,
+                'country': waypoint.country,
                 'latitude': waypoint.latitude,
                 'longitude': waypoint.longitude,
-                'style': waypoint.style
+                'elevation': waypoint.elevation if waypoint.elevation is not None else '',
+                'style': waypoint.style,
+                'runway_direction': waypoint.runway_direction,
+                'runway_length': waypoint.runway_length,
+                'runway_width': waypoint.runway_width,
+                'frequency': waypoint.frequency,
+                'description': waypoint.description
             })

@@ -9,7 +9,7 @@ from ..models import Waypoint
 
 
 class WaypointDialog:
-    """Dialog for adding or editing a waypoint."""
+    """Dialog for adding or editing a waypoint with full CUP field support."""
     
     def __init__(self, parent: tk.Tk, waypoint: Optional[Waypoint] = None, 
                  on_save: Optional[Callable[[Waypoint], None]] = None):
@@ -28,7 +28,7 @@ class WaypointDialog:
         
         self.dialog = tk.Toplevel(parent)
         self.dialog.title("Edit Waypoint" if waypoint else "Add Waypoint")
-        self.dialog.geometry("400x180")
+        self.dialog.geometry("500x450")
         self.dialog.transient(parent)
         self.dialog.grab_set()
         
@@ -45,62 +45,243 @@ class WaypointDialog:
         self.dialog.geometry(f"+{x}+{y}")
     
     def _create_widgets(self):
-        """Create dialog widgets."""
-        # Name
-        tk.Label(self.dialog, text="Name:").grid(row=0, column=0, sticky='e', padx=5, pady=5)
-        self.name_entry = tk.Entry(self.dialog, width=30)
-        self.name_entry.grid(row=0, column=1, padx=5, pady=5)
+        """Create dialog widgets with tabbed interface."""
+        # Create notebook (tabbed interface)
+        notebook = ttk.Notebook(self.dialog)
+        notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
         
-        # Latitude
-        tk.Label(self.dialog, text="Latitude:").grid(row=1, column=0, sticky='e', padx=5, pady=5)
-        self.lat_entry = tk.Entry(self.dialog, width=30)
-        self.lat_entry.grid(row=1, column=1, padx=5, pady=5)
+        # Tab 1: Basic Information
+        basic_frame = ttk.Frame(notebook)
+        notebook.add(basic_frame, text="Basic Info")
+        self._create_basic_tab(basic_frame)
         
-        # Longitude
-        tk.Label(self.dialog, text="Longitude:").grid(row=2, column=0, sticky='e', padx=5, pady=5)
-        self.lon_entry = tk.Entry(self.dialog, width=30)
-        self.lon_entry.grid(row=2, column=1, padx=5, pady=5)
+        # Tab 2: Airfield/Runway Information
+        runway_frame = ttk.Frame(notebook)
+        notebook.add(runway_frame, text="Airfield Info")
+        self._create_runway_tab(runway_frame)
+        
+        # Tab 3: Additional Details
+        details_frame = ttk.Frame(notebook)
+        notebook.add(details_frame, text="Details")
+        self._create_details_tab(details_frame)
+        
+        # Buttons at bottom
+        button_frame = tk.Frame(self.dialog)
+        button_frame.pack(pady=10)
+        
+        save_btn = tk.Button(button_frame, text="Save", command=self._save, width=12)
+        save_btn.pack(side=tk.LEFT, padx=5)
+        
+        cancel_btn = tk.Button(button_frame, text="Cancel", command=self.dialog.destroy, width=12)
+        cancel_btn.pack(side=tk.LEFT, padx=5)
+    
+    def _create_basic_tab(self, parent):
+        """Create basic information tab."""
+        row = 0
+        
+        # Name (required)
+        tk.Label(parent, text="Name: *", font=('Arial', 9, 'bold')).grid(
+            row=row, column=0, sticky='e', padx=5, pady=5
+        )
+        self.name_entry = tk.Entry(parent, width=40)
+        self.name_entry.grid(row=row, column=1, columnspan=2, padx=5, pady=5, sticky='ew')
+        row += 1
+        
+        # Code
+        tk.Label(parent, text="Code:").grid(row=row, column=0, sticky='e', padx=5, pady=5)
+        self.code_entry = tk.Entry(parent, width=15)
+        self.code_entry.grid(row=row, column=1, padx=5, pady=5, sticky='w')
+        tk.Label(parent, text="(e.g., EPBK for airports)", font=('Arial', 8), fg='gray').grid(
+            row=row, column=2, padx=5, pady=5, sticky='w'
+        )
+        row += 1
+        
+        # Country
+        tk.Label(parent, text="Country:").grid(row=row, column=0, sticky='e', padx=5, pady=5)
+        self.country_entry = tk.Entry(parent, width=15)
+        self.country_entry.grid(row=row, column=1, padx=5, pady=5, sticky='w')
+        tk.Label(parent, text="(2-letter code, e.g., PL, US)", font=('Arial', 8), fg='gray').grid(
+            row=row, column=2, padx=5, pady=5, sticky='w'
+        )
+        row += 1
+        
+        # Latitude (required)
+        tk.Label(parent, text="Latitude: *", font=('Arial', 9, 'bold')).grid(
+            row=row, column=0, sticky='e', padx=5, pady=5
+        )
+        self.lat_entry = tk.Entry(parent, width=20)
+        self.lat_entry.grid(row=row, column=1, padx=5, pady=5, sticky='w')
+        tk.Label(parent, text="(decimal degrees, e.g., 52.765234)", font=('Arial', 8), fg='gray').grid(
+            row=row, column=2, padx=5, pady=5, sticky='w'
+        )
+        row += 1
+        
+        # Longitude (required)
+        tk.Label(parent, text="Longitude: *", font=('Arial', 9, 'bold')).grid(
+            row=row, column=0, sticky='e', padx=5, pady=5
+        )
+        self.lon_entry = tk.Entry(parent, width=20)
+        self.lon_entry.grid(row=row, column=1, padx=5, pady=5, sticky='w')
+        tk.Label(parent, text="(decimal degrees, e.g., 23.186700)", font=('Arial', 8), fg='gray').grid(
+            row=row, column=2, padx=5, pady=5, sticky='w'
+        )
+        row += 1
+        
+        # Elevation
+        tk.Label(parent, text="Elevation:").grid(row=row, column=0, sticky='e', padx=5, pady=5)
+        self.elev_entry = tk.Entry(parent, width=20)
+        self.elev_entry.grid(row=row, column=1, padx=5, pady=5, sticky='w')
+        tk.Label(parent, text="(meters, leave empty to auto-fetch)", font=('Arial', 8), fg='gray').grid(
+            row=row, column=2, padx=5, pady=5, sticky='w'
+        )
+        row += 1
         
         # Style
-        tk.Label(self.dialog, text="Style:").grid(row=3, column=0, sticky='e', padx=5, pady=5)
+        tk.Label(parent, text="Style:").grid(row=row, column=0, sticky='e', padx=5, pady=5)
         self.style_var = tk.StringVar()
         self.style_menu = ttk.Combobox(
-            self.dialog, 
+            parent, 
             textvariable=self.style_var, 
             values=list(STYLE_OPTIONS.values()), 
             state="readonly", 
-            width=27
+            width=30
         )
-        self.style_menu.grid(row=3, column=1, padx=5, pady=5)
+        self.style_menu.grid(row=row, column=1, columnspan=2, padx=5, pady=5, sticky='ew')
+        row += 1
+        
+        # Configure grid weights
+        parent.columnconfigure(1, weight=1)
+        parent.columnconfigure(2, weight=1)
         
         # Prefill if editing
         if self.waypoint:
             self.name_entry.insert(0, self.waypoint.name)
+            self.code_entry.insert(0, self.waypoint.code)
+            self.country_entry.insert(0, self.waypoint.country)
             self.lat_entry.insert(0, str(self.waypoint.latitude))
             self.lon_entry.insert(0, str(self.waypoint.longitude))
+            if self.waypoint.elevation is not None:
+                self.elev_entry.insert(0, str(self.waypoint.elevation))
             self.style_menu.set(STYLE_OPTIONS.get(self.waypoint.style, "Waypoint"))
         else:
             self.style_menu.set("Waypoint")
         
-        # Buttons
-        button_frame = tk.Frame(self.dialog)
-        button_frame.grid(row=4, column=0, columnspan=2, pady=10)
-        
-        save_btn = tk.Button(button_frame, text="Save", command=self._save, width=10)
-        save_btn.pack(side=tk.LEFT, padx=5)
-        
-        cancel_btn = tk.Button(button_frame, text="Cancel", command=self.dialog.destroy, width=10)
-        cancel_btn.pack(side=tk.LEFT, padx=5)
-        
         # Focus on name entry
         self.name_entry.focus()
     
+    def _create_runway_tab(self, parent):
+        """Create airfield/runway information tab."""
+        row = 0
+        
+        tk.Label(parent, text="Airfield & Runway Information", font=('Arial', 10, 'bold')).grid(
+            row=row, column=0, columnspan=3, pady=10
+        )
+        row += 1
+        
+        # Runway Direction
+        tk.Label(parent, text="Runway Direction:").grid(row=row, column=0, sticky='e', padx=5, pady=5)
+        self.rwdir_entry = tk.Entry(parent, width=20)
+        self.rwdir_entry.grid(row=row, column=1, padx=5, pady=5, sticky='w')
+        tk.Label(parent, text="(e.g., 09/27, 36, 180)", font=('Arial', 8), fg='gray').grid(
+            row=row, column=2, padx=5, pady=5, sticky='w'
+        )
+        row += 1
+        
+        # Runway Length
+        tk.Label(parent, text="Runway Length:").grid(row=row, column=0, sticky='e', padx=5, pady=5)
+        self.rwlen_entry = tk.Entry(parent, width=20)
+        self.rwlen_entry.grid(row=row, column=1, padx=5, pady=5, sticky='w')
+        tk.Label(parent, text="(meters, e.g., 1200)", font=('Arial', 8), fg='gray').grid(
+            row=row, column=2, padx=5, pady=5, sticky='w'
+        )
+        row += 1
+        
+        # Runway Width
+        tk.Label(parent, text="Runway Width:").grid(row=row, column=0, sticky='e', padx=5, pady=5)
+        self.rwwidth_entry = tk.Entry(parent, width=20)
+        self.rwwidth_entry.grid(row=row, column=1, padx=5, pady=5, sticky='w')
+        tk.Label(parent, text="(meters, e.g., 30)", font=('Arial', 8), fg='gray').grid(
+            row=row, column=2, padx=5, pady=5, sticky='w'
+        )
+        row += 1
+        
+        # Frequency
+        tk.Label(parent, text="Radio Frequency:").grid(row=row, column=0, sticky='e', padx=5, pady=5)
+        self.freq_entry = tk.Entry(parent, width=20)
+        self.freq_entry.grid(row=row, column=1, padx=5, pady=5, sticky='w')
+        tk.Label(parent, text="(MHz, e.g., 122.500)", font=('Arial', 8), fg='gray').grid(
+            row=row, column=2, padx=5, pady=5, sticky='w'
+        )
+        row += 1
+        
+        # Configure grid weights
+        parent.columnconfigure(1, weight=1)
+        parent.columnconfigure(2, weight=1)
+        
+        # Prefill if editing
+        if self.waypoint:
+            self.rwdir_entry.insert(0, self.waypoint.runway_direction)
+            self.rwlen_entry.insert(0, self.waypoint.runway_length)
+            self.rwwidth_entry.insert(0, self.waypoint.runway_width)
+            self.freq_entry.insert(0, self.waypoint.frequency)
+    
+    def _create_details_tab(self, parent):
+        """Create additional details tab."""
+        row = 0
+        
+        tk.Label(parent, text="Additional Information", font=('Arial', 10, 'bold')).grid(
+            row=row, column=0, columnspan=2, pady=10
+        )
+        row += 1
+        
+        # Description
+        tk.Label(parent, text="Description:", anchor='nw').grid(
+            row=row, column=0, sticky='ne', padx=5, pady=5
+        )
+        
+        # Text widget with scrollbar for description
+        desc_frame = tk.Frame(parent)
+        desc_frame.grid(row=row, column=1, padx=5, pady=5, sticky='nsew')
+        
+        self.desc_text = tk.Text(desc_frame, width=40, height=10, wrap=tk.WORD)
+        desc_scrollbar = ttk.Scrollbar(desc_frame, orient=tk.VERTICAL, command=self.desc_text.yview)
+        self.desc_text.configure(yscrollcommand=desc_scrollbar.set)
+        
+        self.desc_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        desc_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        row += 1
+        
+        tk.Label(parent, text="Free text description or notes", font=('Arial', 8), fg='gray').grid(
+            row=row, column=1, padx=5, pady=(0, 5), sticky='w'
+        )
+        
+        # Configure grid weights
+        parent.columnconfigure(1, weight=1)
+        parent.rowconfigure(1, weight=1)
+        
+        # Prefill if editing
+        if self.waypoint and self.waypoint.description:
+            self.desc_text.insert('1.0', self.waypoint.description)
+    
     def _save(self):
         """Validate and save the waypoint."""
+        # Get basic values
         name = self.name_entry.get().strip()
+        code = self.code_entry.get().strip()
+        country = self.country_entry.get().strip().upper()
         lat_text = self.lat_entry.get().strip()
         lon_text = self.lon_entry.get().strip()
+        elev_text = self.elev_entry.get().strip()
         style_label = self.style_var.get()
+        
+        # Get runway values
+        rwdir = self.rwdir_entry.get().strip()
+        rwlen = self.rwlen_entry.get().strip()
+        rwwidth = self.rwwidth_entry.get().strip()
+        freq = self.freq_entry.get().strip()
+        
+        # Get description
+        desc = self.desc_text.get('1.0', tk.END).strip()
         
         # Validation
         if not name:
@@ -122,41 +303,55 @@ class WaypointDialog:
             )
             return
         
-        # Validate coordinate ranges
-        if not (LATITUDE_MIN <= lat <= LATITUDE_MAX):
-            messagebox.showerror(
-                "Invalid Input", 
-                f"Latitude must be between {LATITUDE_MIN} and {LATITUDE_MAX}",
-                parent=self.dialog
-            )
-            return
-        
-        if not (LONGITUDE_MIN <= lon <= LONGITUDE_MAX):
-            messagebox.showerror(
-                "Invalid Input", 
-                f"Longitude must be between {LONGITUDE_MIN} and {LONGITUDE_MAX}",
-                parent=self.dialog
-            )
-            return
+        # Parse elevation if provided
+        elev = None
+        if elev_text:
+            try:
+                elev = float(elev_text)
+            except ValueError:
+                messagebox.showerror("Invalid Input", "Elevation must be a number", parent=self.dialog)
+                return
         
         style_code = STYLE_LABELS.get(style_label, 1)
         
-        # Create or update waypoint
-        if self.waypoint:
-            # Update existing waypoint
-            self.waypoint.name = name
-            self.waypoint.latitude = lat
-            self.waypoint.longitude = lon
-            self.waypoint.style = style_code
-            self.result = self.waypoint
-        else:
-            # Create new waypoint
-            self.result = Waypoint(
-                name=name,
-                latitude=lat,
-                longitude=lon,
-                style=style_code
-            )
+        # Create or update waypoint (validation happens in __post_init__)
+        try:
+            if self.waypoint:
+                # Update existing waypoint
+                self.waypoint.name = name
+                self.waypoint.code = code
+                self.waypoint.country = country
+                self.waypoint.latitude = lat
+                self.waypoint.longitude = lon
+                self.waypoint.elevation = elev
+                self.waypoint.style = style_code
+                self.waypoint.runway_direction = rwdir
+                self.waypoint.runway_length = rwlen
+                self.waypoint.runway_width = rwwidth
+                self.waypoint.frequency = freq
+                self.waypoint.description = desc
+                # Re-validate
+                self.waypoint.__post_init__()
+                self.result = self.waypoint
+            else:
+                # Create new waypoint
+                self.result = Waypoint(
+                    name=name,
+                    code=code,
+                    country=country,
+                    latitude=lat,
+                    longitude=lon,
+                    elevation=elev,
+                    style=style_code,
+                    runway_direction=rwdir,
+                    runway_length=rwlen,
+                    runway_width=rwwidth,
+                    frequency=freq,
+                    description=desc
+                )
+        except ValueError as e:
+            messagebox.showerror("Validation Error", str(e), parent=self.dialog)
+            return
         
         # Call callback if provided
         if self.on_save:

@@ -23,7 +23,7 @@ class MainWindow:
         """
         self.root = root
         self.root.title("XCSoar CUP Editor")
-        self.root.geometry("900x600")
+        self.root.geometry("1200x600")  # Wider for more columns
         
         self.waypoints: List[Waypoint] = []
         self.cup_file_path: Optional[str] = None
@@ -64,24 +64,33 @@ class MainWindow:
         tk.Button(button_frame, text="Edit Selected", command=self._edit_point).grid(row=0, column=9, padx=5)
         tk.Button(button_frame, text="Remove Selected", command=self._remove_selected).grid(row=0, column=10, padx=5)
         
-        # Tree view
+        # Tree view with extended columns
+        columns = ("Name", "Code", "Country", "Latitude", "Longitude", "Elevation", "Style", "Airfield")
         self.tree = ttk.Treeview(
             self.root, 
-            columns=("Name", "Latitude", "Longitude", "Style Code", "Style"), 
+            columns=columns, 
             show='headings'
         )
+        
+        # Configure headings and columns
         self.tree.heading("Name", text="Name", command=self._sort_by_name)
+        self.tree.heading("Code", text="Code")
+        self.tree.heading("Country", text="Country")
         self.tree.heading("Latitude", text="Latitude")
         self.tree.heading("Longitude", text="Longitude")
-        self.tree.heading("Style Code", text="Style Code")
-        self.tree.heading("Style", text="Style")
+        self.tree.heading("Elevation", text="Elevation (m)")
+        self.tree.heading("Style", text="Type")
+        self.tree.heading("Airfield", text="Airfield")
         
         # Configure column widths
-        self.tree.column("Name", width=200)
-        self.tree.column("Latitude", width=120)
-        self.tree.column("Longitude", width=120)
-        self.tree.column("Style Code", width=100)
-        self.tree.column("Style", width=200)
+        self.tree.column("Name", width=180)
+        self.tree.column("Code", width=60)
+        self.tree.column("Country", width=60)
+        self.tree.column("Latitude", width=100)
+        self.tree.column("Longitude", width=100)
+        self.tree.column("Elevation", width=80)
+        self.tree.column("Style", width=150)
+        self.tree.column("Airfield", width=80)
         
         # Scrollbar for tree
         scrollbar = ttk.Scrollbar(self.root, orient=tk.VERTICAL, command=self.tree.yview)
@@ -117,12 +126,22 @@ class MainWindow:
         self.tree.delete(*self.tree.get_children())
         for waypoint in self.waypoints:
             style_label = STYLE_OPTIONS.get(waypoint.style, 'Unknown')
+            
+            # Format elevation
+            elev_str = f"{waypoint.elevation:.1f}" if waypoint.elevation is not None else ""
+            
+            # Check if airfield (has runway or frequency info)
+            airfield_marker = "✓" if waypoint.is_airfield else ""
+            
             self.tree.insert('', tk.END, values=(
                 waypoint.name,
+                waypoint.code,
+                waypoint.country,
                 f"{waypoint.latitude:.6f}",
                 f"{waypoint.longitude:.6f}",
-                waypoint.style,
-                style_label
+                elev_str,
+                style_label,
+                airfield_marker
             ))
     
     def _on_closing(self):
