@@ -105,6 +105,14 @@ class WaypointDialog:
         )
         row += 1
         
+        # Clipboard paste button
+        paste_btn = tk.Button(parent, text="📋 Paste from Clipboard", command=self._paste_google_coords)
+        paste_btn.grid(row=row, column=1, padx=5, pady=5, sticky='w')
+        tk.Label(parent, text="(Paste: lat, lon)", font=('Arial', 8), fg='gray').grid(
+            row=row, column=2, padx=5, pady=5, sticky='w'
+        )
+        row += 1
+        
         # Latitude (required)
         tk.Label(parent, text="Latitude: *", font=('Arial', 9, 'bold')).grid(
             row=row, column=0, sticky='e', padx=5, pady=5
@@ -262,6 +270,60 @@ class WaypointDialog:
         # Prefill if editing
         if self.waypoint and self.waypoint.description:
             self.desc_text.insert('1.0', self.waypoint.description)
+    
+    def _paste_google_coords(self):
+        """Paste and parse coordinates from Google Maps format (lat, lon)."""
+        try:
+            # Get clipboard content
+            clipboard_text = self.dialog.clipboard_get().strip()
+            
+            # Try to parse "lat, lon" format
+            parts = clipboard_text.split(',')
+            if len(parts) == 2:
+                lat_str = parts[0].strip()
+                lon_str = parts[1].strip()
+                
+                # Try to convert to float to validate
+                lat = float(lat_str)
+                lon = float(lon_str)
+                
+                # Check if in valid range
+                if -90 <= lat <= 90 and -180 <= lon <= 180:
+                    # Clear existing values and insert new ones
+                    self.lat_entry.delete(0, tk.END)
+                    self.lat_entry.insert(0, lat_str)
+                    self.lon_entry.delete(0, tk.END)
+                    self.lon_entry.insert(0, lon_str)
+                    
+                    messagebox.showinfo(
+                        "Coordinates Pasted",
+                        f"Latitude: {lat}\nLongitude: {lon}",
+                        parent=self.dialog
+                    )
+                else:
+                    messagebox.showerror(
+                        "Invalid Coordinates",
+                        f"Coordinates out of range:\nLat: {lat} (must be -90 to 90)\nLon: {lon} (must be -180 to 180)",
+                        parent=self.dialog
+                    )
+            else:
+                messagebox.showerror(
+                    "Invalid Format",
+                    f"Expected format: latitude, longitude\nExample: 53.57765449192929, 23.105890054191562\n\nFound: {clipboard_text}",
+                    parent=self.dialog
+                )
+        except ValueError as e:
+            messagebox.showerror(
+                "Parse Error",
+                f"Could not parse coordinates from clipboard.\nExpected format: latitude, longitude\nExample: 53.57765449192929, 23.105890054191562",
+                parent=self.dialog
+            )
+        except tk.TclError:
+            messagebox.showerror(
+                "Clipboard Error",
+                "Could not access clipboard. Please copy coordinates first.",
+                parent=self.dialog
+            )
     
     def _save(self):
         """Validate and save the waypoint."""

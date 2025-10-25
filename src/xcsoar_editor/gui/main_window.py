@@ -144,6 +144,28 @@ class MainWindow:
                 airfield_marker
             ))
     
+    def _select_waypoint_by_name(self, name: str):
+        """
+        Select and scroll to a waypoint by name.
+        
+        Args:
+            name: Name of the waypoint to select
+        """
+        # Find the waypoint in the list
+        for i, waypoint in enumerate(self.waypoints):
+            if waypoint.name == name:
+                # Get the tree item at this index
+                children = self.tree.get_children()
+                if i < len(children):
+                    item_id = children[i]
+                    # Clear current selection
+                    self.tree.selection_remove(self.tree.selection())
+                    # Select and scroll to the item
+                    self.tree.selection_set(item_id)
+                    self.tree.see(item_id)
+                    self.tree.focus(item_id)
+                    break
+    
     def _on_closing(self):
         """Handle window close event - check for unsaved changes."""
         if self.modified:
@@ -196,6 +218,8 @@ class MainWindow:
         
         try:
             self.waypoints = parse_cup_file(filepath)
+            # Sort by name automatically after loading
+            self.waypoints.sort(key=lambda w: w.name.lower())
             self.cup_file_path = filepath
             self.modified = False
             self._refresh_tree()
@@ -218,14 +242,16 @@ class MainWindow:
         try:
             imported = parse_csv_file(filepath)
             self.waypoints.extend(imported)
+            # Sort by name automatically after importing
+            self.waypoints.sort(key=lambda w: w.name.lower())
             self._refresh_tree()
             self._mark_modified()
             messagebox.showinfo(
                 "Imported", 
-                f"Imported {len(imported)} waypoints from CSV"
+                f"Imported {len(imported)} waypoints from {os.path.basename(filepath)}"
             )
         except Exception as e:
-            messagebox.showerror("Import Error", f"Failed to import CSV:\n{str(e)}")
+            messagebox.showerror("Import Error", f"Failed to import file:\n{str(e)}")
     
     def _export_csv(self):
         """Export current waypoints to CSV file."""
@@ -252,9 +278,18 @@ class MainWindow:
     def _add_point(self):
         """Show dialog to add a new waypoint."""
         def on_save(waypoint: Waypoint):
+            # Fetch elevation if not provided
+            if waypoint.elevation is None:
+                from ..file_io import get_elevation
+                waypoint.elevation = get_elevation(waypoint.latitude, waypoint.longitude)
+            
             self.waypoints.append(waypoint)
+            # Sort by name after adding
+            self.waypoints.sort(key=lambda w: w.name.lower())
             self._refresh_tree()
             self._mark_modified()
+            # Find and select the newly added waypoint
+            self._select_waypoint_by_name(waypoint.name)
         
         dialog = WaypointDialog(self.root, on_save=on_save)
         dialog.show()
@@ -273,10 +308,28 @@ class MainWindow:
         
         # Use the tree index to get the corresponding waypoint
         if 0 <= tree_index < len(self.waypoints):
+            original_waypoint = self.waypoints[tree_index]
+            # Store original coordinates for comparison
+            original_lat = original_waypoint.latitude
+            original_lon = original_waypoint.longitude
+            
             def on_save(waypoint: Waypoint):
+                # Check if coordinates changed or elevation is missing
+                coords_changed = (original_lat != waypoint.latitude or 
+                                original_lon != waypoint.longitude)
+                
+                # Fetch elevation if coordinates changed or elevation is missing
+                if waypoint.elevation is None or coords_changed:
+                    from ..file_io import get_elevation
+                    waypoint.elevation = get_elevation(waypoint.latitude, waypoint.longitude)
+                
                 self.waypoints[tree_index] = waypoint
+                # Sort by name after editing (name might have changed)
+                self.waypoints.sort(key=lambda w: w.name.lower())
                 self._refresh_tree()
                 self._mark_modified()
+                # Re-select the edited waypoint
+                self._select_waypoint_by_name(waypoint.name)
             
             dialog = WaypointDialog(self.root, waypoint=self.waypoints[tree_index], on_save=on_save)
             dialog.show()
@@ -364,6 +417,9 @@ class MainWindow:
         try:
             write_cup_file(filepath, self.waypoints, fetch_elevation=True)
             self._mark_saved()
+            # Sort and refresh list after save
+            self.waypoints.sort(key=lambda w: w.name.lower())
+            self._refresh_tree()
             messagebox.showinfo(
                 "Saved", 
                 f"Saved {len(self.waypoints)} waypoints to {os.path.basename(filepath)}"

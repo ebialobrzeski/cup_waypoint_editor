@@ -1,7 +1,9 @@
 name,code,country,lat,lon,elev,style,rwdir,rwlen,rwwidth,freq,desc
+"Augustów",,PL,5350.64225N,02258.82460E,124.0m,1,,,,,
 "Bielsk Podlaski",,PL,5245.91404N,02311.20404E,140.0m,1,,,,,
 "Brańsk",,PL,5244.59600N,02250.48500E,133.0m,1,,,,,
 "Czarna Białostocka",,PL,5318.34100N,02316.82500E,155.0m,1,,,,,
+"Czyżew",,PL,5247.85513N,02218.74065E,120.0m,1,,,,,
 "Goniądz",,PL,5329.38500N,02244.10800E,129.0m,1,,,,,
 "Gródek",,PL,5305.73400N,02339.56900E,143.0m,1,,,,,
 "Hajnówka",,PL,5244.35500N,02334.89800E,164.0m,1,,,,,
@@ -19,7 +21,7 @@ name,code,country,lat,lon,elev,style,rwdir,rwlen,rwwidth,freq,desc
 "Siemianówka",,PL,5253.95100N,02350.34700E,145.0m,1,,,,,
 "Siemiatycze",,PL,5225.67300N,02251.76600E,145.0m,1,,,,,
 "Sokółka",,PL,5324.24000N,02330.47900E,158.0m,1,,,,,
-"Suchowola",,PL,5334.66400N,02306.35100E,142.0m,1,,,,,
+"Suchowola",,PL,5334.65903N,02306.35245E,142.0m,1,,,,,
 "Supraśl",,PL,5312.60500N,02320.14800E,130.0m,1,,,,,
 "Szepietowo",,PL,5252.20300N,02232.48800E,147.0m,1,,,,,
 "Tykocin",,PL,5312.38600N,02246.43300E,112.0m,1,,,,,
@@ -29,4 +31,3 @@ name,code,country,lat,lon,elev,style,rwdir,rwlen,rwwidth,freq,desc
 "Zambrów",,PL,5259.12800N,02214.64800E,126.0m,1,,,,,
 "Łapy",,PL,5259.42800N,02253.01900E,120.0m,1,,,,,
 "Łomża",,PL,5310.84400N,02204.60400E,123.0m,1,,,,,
-"Czyżew",,PL,5247.85513N,02218.74065E,120.0m,1,,,,,
