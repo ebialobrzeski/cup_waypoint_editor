@@ -1,4 +1,4 @@
-"""GUI package for XCSoar CUP Editor."""
+"""GUI package for Soaring CUP Editor."""
 
 from .main_window import MainWindow
 from .dialogs import WaypointDialog

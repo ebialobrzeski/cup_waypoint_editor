@@ -1,4 +1,4 @@
-"""Setup configuration for XCSoar CUP Editor."""
+"""Setup configuration for Soaring CUP File Editor."""
 
 from setuptools import setup, find_packages
 from pathlib import Path
@@ -8,10 +8,10 @@ this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text(encoding='utf-8')
 
 setup(
-    name="xcsoar-cup-editor",
+    name="soaring-cup-editor",
     version="1.0.0",
-    author="XCSoar Editor Team",
-    description="A waypoint editor for XCSoar flight planning software",
+    author="Soaring CUP Editor Team",
+    description="A waypoint editor for soaring and flight planning software",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/ebialobrzeski/cup_waypoint_editor",
@@ -35,7 +35,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "xcsoar-editor=xcsoar_editor.__main__:main",
+            "soaring-cup-editor=soaring_cup_file_editor.__main__:main",
         ],
     },
 )

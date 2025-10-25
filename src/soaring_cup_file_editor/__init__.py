@@ -1,7 +1,7 @@
-"""XCSoar CUP Editor - A waypoint editor for XCSoar flight planning software."""
+"""Soaring CUP File Editor - A waypoint editor for soaring and flight planning software."""
 
 __version__ = "1.0.0"
-__author__ = "XCSoar Editor Team"
+__author__ = "Soaring CUP Editor Team"
 
 from .models import Waypoint
 from .file_io import parse_cup_file, write_cup_file, parse_csv_file, write_csv_file

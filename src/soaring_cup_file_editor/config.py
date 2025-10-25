@@ -1,6 +1,6 @@
-"""Configuration constants for XCSoar CUP Editor."""
+"""Configuration constants for Soaring CUP Editor."""
 
-# XCSoar style options mapping
+# Style options mapping
 STYLE_OPTIONS = {
     0: "Unknown",
     1: "Waypoint",

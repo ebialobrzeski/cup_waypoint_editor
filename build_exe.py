@@ -1,5 +1,5 @@
 """
-Build script for creating Windows executable of XCSoar CUP Editor.
+Build script for creating Windows executable of Soaring CUP File Editor.
 
 Usage:
     python build_exe.py
@@ -44,9 +44,10 @@ def clean_build_dirs():
             print(f"Cleaning {dir_name}/...")
             shutil.rmtree(dir_name)
     
-    # Remove spec file if it exists (we have a custom one)
-    if os.path.exists('XCSoar-CUP-Editor.spec'):
-        os.remove('XCSoar-CUP-Editor.spec')
+    # Remove old spec files if they exist
+    for old_spec in ['XCSoar-CUP-Editor.spec', 'xcsoar_cup_editor.spec', 'Soaring-CUP-Editor.spec']:
+        if os.path.exists(old_spec):
+            os.remove(old_spec)
     
     print("✓ Cleaned previous build artifacts")
 
@@ -57,20 +58,20 @@ def build_executable():
     print("This may take a few minutes...\n")
     
     # Check if custom spec file exists
-    if os.path.exists('xcsoar_cup_editor.spec'):
-        print("Using custom spec file: xcsoar_cup_editor.spec")
-        cmd = [sys.executable, "-m", "PyInstaller", "xcsoar_cup_editor.spec"]
+    if os.path.exists('soaring_cup_editor.spec'):
+        print("Using custom spec file: soaring_cup_editor.spec")
+        cmd = [sys.executable, "-m", "PyInstaller", "soaring_cup_editor.spec"]
     else:
         print("Using default PyInstaller settings")
         cmd = [
             sys.executable, "-m", "PyInstaller",
             "--onefile",
             "--windowed",
-            "--name", "XCSoar-CUP-Editor",
+            "--name", "Soaring-CUP-Editor",
             "--hidden-import", "requests",
             "--hidden-import", "urllib3",
             "--hidden-import", "certifi",
-            "xcsoar_gui_editor.py"
+            "soaring_cup_editor.py"
         ]
     
     try:
@@ -86,7 +87,7 @@ def build_executable():
 
 def report_results():
     """Report the build results."""
-    exe_path = Path("dist/XCSoar-CUP-Editor.exe")
+    exe_path = Path("dist/Soaring-CUP-Editor.exe")
     
     if exe_path.exists():
         size_mb = exe_path.stat().st_size / (1024 * 1024)
@@ -96,7 +97,7 @@ def report_results():
         print(f"\nExecutable location: {exe_path.absolute()}")
         print(f"File size: {size_mb:.2f} MB")
         print("\nYou can now:")
-        print("1. Test it: .\\dist\\XCSoar-CUP-Editor.exe")
+        print("1. Test it: .\\dist\\Soaring-CUP-Editor.exe")
         print("2. Share it: Send the .exe file to others")
         print("3. Move it: Copy to any location (no Python needed!)")
         print("\nNote: Windows Defender may scan it on first run.")
@@ -108,7 +109,7 @@ def report_results():
 def main():
     """Main build process."""
     print("="*60)
-    print("XCSoar CUP Editor - Windows Executable Builder")
+    print("Soaring CUP File Editor - Windows Executable Builder")
     print("="*60)
     print()
     

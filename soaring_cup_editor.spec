@@ -1,18 +1,18 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 """
-PyInstaller spec file for XCSoar CUP Editor
-Usage: pyinstaller xcsoar_cup_editor.spec
+PyInstaller spec file for Soaring CUP File Editor
+Usage: pyinstaller soaring_cup_editor.spec
 """
 
 block_cipher = None
 
 a = Analysis(
-    ['xcsoar_gui_editor.py'],
+    ['soaring_cup_editor.py'],
     pathex=[],
     binaries=[],
     datas=[
-        ('src/xcsoar_editor', 'xcsoar_editor'),  # Include package modules
+        ('src/soaring_cup_file_editor', 'soaring_cup_file_editor'),  # Include package modules
     ],
     hiddenimports=[
         'requests',
@@ -48,7 +48,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='XCSoar-CUP-Editor',
+    name='Soaring-CUP-Editor',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

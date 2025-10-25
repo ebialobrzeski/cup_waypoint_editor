@@ -1,4 +1,4 @@
-"""Main window for the XCSoar CUP Editor."""
+"""Main window for the Soaring CUP File Editor."""
 
 import os
 import tkinter as tk
@@ -12,7 +12,7 @@ from .dialogs import WaypointDialog
 
 
 class MainWindow:
-    """Main application window for XCSoar CUP Editor."""
+    """Main application window for Soaring CUP File Editor."""
     
     def __init__(self, root: tk.Tk):
         """
@@ -22,7 +22,7 @@ class MainWindow:
             root: Root Tk window
         """
         self.root = root
-        self.root.title("XCSoar CUP Editor")
+        self.root.title("Soaring CUP File Editor")
         self.root.geometry("1200x600")  # Wider for more columns
         
         self.waypoints: List[Waypoint] = []
@@ -106,7 +106,7 @@ class MainWindow:
         """Update window title to show filename and modified status."""
         filename = os.path.basename(self.cup_file_path) if self.cup_file_path else "Untitled"
         modified_marker = "*" if self.modified else ""
-        self.root.title(f"XCSoar CUP Editor - {filename}{modified_marker}")
+        self.root.title(f"Soaring CUP File Editor - {filename}{modified_marker}")
     
     def _mark_modified(self):
         """Mark the file as modified and update UI."""

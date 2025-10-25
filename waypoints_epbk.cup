@@ -4,6 +4,7 @@ name,code,country,lat,lon,elev,style,rwdir,rwlen,rwwidth,freq,desc
 "Brańsk",,PL,5244.59600N,02250.48500E,133.0m,1,,,,,
 "Czarna Białostocka",,PL,5318.34100N,02316.82500E,155.0m,1,,,,,
 "Czyżew",,PL,5247.85513N,02218.74065E,120.0m,1,,,,,
+"Ełk",,PL,5349.68399N,02221.88221E,127.0m,1,,,,,
 "Goniądz",,PL,5329.38500N,02244.10800E,129.0m,1,,,,,
 "Gródek",,PL,5305.73400N,02339.56900E,143.0m,1,,,,,
 "Hajnówka",,PL,5244.35500N,02334.89800E,164.0m,1,,,,,

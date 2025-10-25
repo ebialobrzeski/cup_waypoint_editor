@@ -3,14 +3,14 @@ requires = ["setuptools>=60.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "xcsoar-cup-editor"
+name = "soaring-cup-editor"
 version = "1.0.0"
-description = "A waypoint editor for XCSoar flight planning software"
+description = "A waypoint editor for soaring and flight planning software"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.7"
 license = {text = "MIT"}
 authors = [
-    {name = "XCSoar Editor Team"}
+    {name = "Soaring CUP Editor Team"}
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -29,7 +29,7 @@ dependencies = [
 ]
 
 [project.scripts]
-xcsoar-editor = "xcsoar_editor.__main__:main"
+soaring-cup-editor = "soaring_cup_file_editor.__main__:main"
 
 [project.urls]
 Homepage = "https://github.com/ebialobrzeski/cup_waypoint_editor"

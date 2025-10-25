@@ -1,4 +1,4 @@
-"""Dialog windows for the XCSoar CUP Editor."""
+"""Dialog windows for the Soaring CUP Editor."""
 
 import tkinter as tk
 from tkinter import messagebox, ttk

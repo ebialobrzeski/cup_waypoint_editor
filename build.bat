@@ -1,9 +1,9 @@
 @echo off
-REM Quick build script for XCSoar CUP Editor
+REM Quick build script for Soaring CUP File Editor
 REM Double-click this file to build the executable
 
 echo ========================================
-echo XCSoar CUP Editor - Build to EXE
+echo Soaring CUP File Editor - Build to EXE
 echo ========================================
 echo.
 
@@ -24,6 +24,6 @@ echo Building executable...
 python build_exe.py
 
 echo.
-echo Done! Check the dist folder for XCSoar-CUP-Editor.exe
+echo Done! Check the dist folder for Soaring-CUP-Editor.exe
 echo.
 pause

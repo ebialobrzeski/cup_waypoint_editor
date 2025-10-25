@@ -31,7 +31,9 @@ A professional graphical editor for XCSoar CUP waypoint files with **full SeeYou
 ```
 cup_waypoint_editor/
 ├── src/
-│   └── xcsoar_editor/          # Main package
+```
+src/
+│   └── soaring_cup_file_editor/          # Main package
 │       ├── __init__.py          # Package exports
 │       ├── __main__.py          # Entry point
 │       ├── config.py            # Configuration and constants
@@ -93,7 +95,9 @@ xcsoar-editor
 pip install -r requirements.txt
 
 # Run directly
-python -m xcsoar_editor
+```bash
+python -m soaring_cup_file_editor
+```
 # OR use the legacy launcher
 python xcsoar_gui_editor.py
 ```
