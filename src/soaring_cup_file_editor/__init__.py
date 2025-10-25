@@ -1,6 +1,6 @@
 """Soaring CUP File Editor - A waypoint editor for soaring and flight planning software."""
 
-__version__ = "1.0.0"
+__version__ = "3.0.0"
 __author__ = "Soaring CUP Editor Team"
 
 from .models import Waypoint

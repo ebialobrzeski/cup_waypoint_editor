@@ -23,7 +23,7 @@ A professional graphical editor for SeeYou CUP waypoint files with **complete CU
 - **Complete Airfield Data**: Runway direction, length, width with unit selection
 - **Radio Frequency**: Aviation frequency support (100-150 MHz)
 - **21 Waypoint Types**: Full style support from waypoints to PG sites
-- **Automatic Elevation**: Fetches elevation from Open-Elevation API when missing
+- **🌍 Automatic Elevation Fetch**: 💡 **IMPORTANT** - Zero-effort elevation! Just enter coordinates, elevation is fetched automatically from Open-Elevation API when you save. No manual lookup needed!
 - **Coordinate Paste**: Paste coordinates directly from Google Maps (lat, lon format)
 
 ### 💾 File Operations
@@ -140,6 +140,8 @@ python soaring_cup_editor.py
    - Use **"📋 Paste from Clipboard"** to paste coordinates from Google Maps
    - Enter latitude and longitude in decimal degrees (e.g., 52.765234, 23.186700)
    - Enter elevation value and select unit (m or ft) from dropdown
+     - **💡 Important:** Leave elevation empty to auto-fetch from Open-Elevation API
+     - **💡 Note:** Elevation is automatically fetched when you save if left empty or when coordinates change
    - Select waypoint style from dropdown
 3. **Airfield Info Tab** (for airports/airfields):
    - Enter runway direction (3-digit: 070, 180, 270)
@@ -164,7 +166,7 @@ python soaring_cup_editor.py
 #### Automatic Features
 - **Auto-Sort**: Waypoints automatically sorted alphabetically by name
 - **Auto-Refresh**: List updates after save operations
-- **Auto-Fetch Elevation**: If elevation is empty, it's fetched from API when coordinates change
+- **Auto-Fetch Elevation**: 🌍 **IMPORTANT** - If elevation is empty or coordinates change, elevation is automatically fetched from Open-Elevation API when you save. No manual lookup needed!
 - **Selection Tracking**: Your selected waypoint stays highlighted after edits
 
 ### File Operations
@@ -202,6 +204,47 @@ Longitude: 23.186700 (positive = East, negative = West)
 Latitude:  5245.91404N (DD°MM.MMMMM format)
 Longitude: 02311.20404E (DDD°MM.MMMMM format)
 ```
+
+### ⛰️ Automatic Elevation Lookup
+
+**🌍 Important Feature: Zero-Effort Elevation Data**
+
+The editor automatically fetches elevation data so you don't have to look it up manually!
+
+**How it works:**
+1. **When adding a waypoint:** Leave the elevation field empty
+2. **When saving:** The application automatically:
+   - Queries the Open-Elevation API with the waypoint's coordinates
+   - Retrieves the elevation in meters
+   - Adds the unit (m) to the value
+   - Saves it to the waypoint
+
+**When elevation is auto-fetched:**
+- ✅ When you add a new waypoint with empty elevation
+- ✅ When you edit coordinates and save (if elevation was empty)
+- ✅ When you change coordinates of an existing waypoint
+
+**Manual elevation entry:**
+- If you enter an elevation value manually, it will NOT be overwritten
+- You can choose your preferred unit (meters or feet) from the dropdown
+- Mixed units in the same file are fully supported
+
+**Data source:**
+- **API:** Open-Elevation (https://open-elevation.com/)
+- **Coverage:** Global elevation data
+- **Accuracy:** SRTM/ASTER GDEM data (±30m vertical accuracy)
+- **Timeout:** 5 seconds (defaults to 0.0m if API unavailable)
+
+**Example workflow:**
+```
+1. Add waypoint "Mountain Peak"
+2. Enter coordinates: 46.361667, 14.174450
+3. Leave elevation EMPTY
+4. Click Save
+5. ✨ Elevation automatically populated: 504.0m
+```
+
+**Pro tip:** For maximum efficiency, just enter names and coordinates - let the app handle elevations!
 
 ## 🎨 Waypoint Styles
 
