@@ -38,11 +38,22 @@ cup_waypoint_editor/
 
 ## Installation
 
-### Requirements
+### For End Users (No Python Required!)
+
+**Download the Windows Executable** (easiest option):
+- Get `XCSoar-CUP-Editor.exe` from releases
+- Double-click to run
+- No Python installation needed!
+
+**Or build it yourself:** See [QUICK_BUILD.md](QUICK_BUILD.md)
+
+### For Developers
+
+#### Requirements
 - Python 3.8 or higher
 - `requests` library
 
-### Option 1: Development Installation (Recommended)
+#### Option 1: Development Installation (Recommended)
 
 ```powershell
 # Install in editable mode
@@ -52,7 +63,7 @@ pip install -e .
 xcsoar-editor
 ```
 
-### Option 2: Direct Installation
+#### Option 2: Direct Installation
 
 ```powershell
 # Install package
@@ -62,7 +73,7 @@ pip install .
 xcsoar-editor
 ```
 
-### Option 3: Run Without Installation
+#### Option 3: Run Without Installation
 
 ```powershell
 # Install dependencies
@@ -73,6 +84,21 @@ python -m xcsoar_editor
 # OR use the legacy launcher
 python xcsoar_gui_editor.py
 ```
+
+## Building Executable
+
+Want to create a standalone .exe file? See these guides:
+
+- **[QUICK_BUILD.md](QUICK_BUILD.md)** - Quick start guide for beginners
+- **[BUILD_EXE.md](BUILD_EXE.md)** - Detailed build options and troubleshooting
+
+**Quick build:**
+```powershell
+# Double-click build.bat, or run:
+python build_exe.py
+```
+
+Your executable will be in `dist/XCSoar-CUP-Editor.exe`
 
 ## Usage
 
