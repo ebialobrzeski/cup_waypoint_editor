@@ -137,9 +137,20 @@ class WaypointDialog:
         
         # Elevation
         tk.Label(parent, text="Elevation:").grid(row=row, column=0, sticky='e', padx=5, pady=5)
-        self.elev_entry = tk.Entry(parent, width=20)
-        self.elev_entry.grid(row=row, column=1, padx=5, pady=5, sticky='w')
-        tk.Label(parent, text="(meters, leave empty to auto-fetch)", font=('Arial', 8), fg='gray').grid(
+        elev_frame = tk.Frame(parent)
+        elev_frame.grid(row=row, column=1, padx=5, pady=5, sticky='w')
+        self.elev_entry = tk.Entry(elev_frame, width=12)
+        self.elev_entry.pack(side=tk.LEFT, padx=(0, 5))
+        self.elev_unit_var = tk.StringVar(value="m")
+        elev_unit_menu = ttk.Combobox(
+            elev_frame, 
+            textvariable=self.elev_unit_var, 
+            values=["m", "ft"], 
+            state="readonly", 
+            width=5
+        )
+        elev_unit_menu.pack(side=tk.LEFT)
+        tk.Label(parent, text="(leave empty to auto-fetch)", font=('Arial', 8), fg='gray').grid(
             row=row, column=2, padx=5, pady=5, sticky='w'
         )
         row += 1
@@ -169,7 +180,20 @@ class WaypointDialog:
             self.lat_entry.insert(0, str(self.waypoint.latitude))
             self.lon_entry.insert(0, str(self.waypoint.longitude))
             if self.waypoint.elevation is not None:
-                self.elev_entry.insert(0, str(self.waypoint.elevation))
+                # Parse elevation value and unit
+                elev_str = str(self.waypoint.elevation)
+                if 'ft' in elev_str.lower():
+                    elev_value = elev_str.lower().replace('ft', '').strip()
+                    self.elev_entry.insert(0, elev_value)
+                    self.elev_unit_var.set('ft')
+                elif 'm' in elev_str.lower():
+                    elev_value = elev_str.lower().replace('m', '').strip()
+                    self.elev_entry.insert(0, elev_value)
+                    self.elev_unit_var.set('m')
+                else:
+                    # No unit specified, assume meters
+                    self.elev_entry.insert(0, elev_str)
+                    self.elev_unit_var.set('m')
             self.style_menu.set(STYLE_OPTIONS.get(self.waypoint.style, "Waypoint"))
         else:
             self.style_menu.set("Waypoint")
@@ -190,25 +214,47 @@ class WaypointDialog:
         tk.Label(parent, text="Runway Direction:").grid(row=row, column=0, sticky='e', padx=5, pady=5)
         self.rwdir_entry = tk.Entry(parent, width=20)
         self.rwdir_entry.grid(row=row, column=1, padx=5, pady=5, sticky='w')
-        tk.Label(parent, text="(e.g., 09/27, 36, 180)", font=('Arial', 8), fg='gray').grid(
+        tk.Label(parent, text="(3-digit heading: 070, 180, 270 or PG: 115.050)", font=('Arial', 8), fg='gray').grid(
             row=row, column=2, padx=5, pady=5, sticky='w'
         )
         row += 1
         
         # Runway Length
         tk.Label(parent, text="Runway Length:").grid(row=row, column=0, sticky='e', padx=5, pady=5)
-        self.rwlen_entry = tk.Entry(parent, width=20)
-        self.rwlen_entry.grid(row=row, column=1, padx=5, pady=5, sticky='w')
-        tk.Label(parent, text="(meters, e.g., 1200)", font=('Arial', 8), fg='gray').grid(
+        rwlen_frame = tk.Frame(parent)
+        rwlen_frame.grid(row=row, column=1, padx=5, pady=5, sticky='w')
+        self.rwlen_entry = tk.Entry(rwlen_frame, width=12)
+        self.rwlen_entry.pack(side=tk.LEFT, padx=(0, 5))
+        self.rwlen_unit_var = tk.StringVar(value="m")
+        rwlen_unit_menu = ttk.Combobox(
+            rwlen_frame, 
+            textvariable=self.rwlen_unit_var, 
+            values=["m", "nm", "ml"], 
+            state="readonly", 
+            width=5
+        )
+        rwlen_unit_menu.pack(side=tk.LEFT)
+        tk.Label(parent, text="(m=meters, nm=nautical miles, ml=statute miles)", font=('Arial', 8), fg='gray').grid(
             row=row, column=2, padx=5, pady=5, sticky='w'
         )
         row += 1
         
         # Runway Width
         tk.Label(parent, text="Runway Width:").grid(row=row, column=0, sticky='e', padx=5, pady=5)
-        self.rwwidth_entry = tk.Entry(parent, width=20)
-        self.rwwidth_entry.grid(row=row, column=1, padx=5, pady=5, sticky='w')
-        tk.Label(parent, text="(meters, e.g., 30)", font=('Arial', 8), fg='gray').grid(
+        rwwidth_frame = tk.Frame(parent)
+        rwwidth_frame.grid(row=row, column=1, padx=5, pady=5, sticky='w')
+        self.rwwidth_entry = tk.Entry(rwwidth_frame, width=12)
+        self.rwwidth_entry.pack(side=tk.LEFT, padx=(0, 5))
+        self.rwwidth_unit_var = tk.StringVar(value="m")
+        rwwidth_unit_menu = ttk.Combobox(
+            rwwidth_frame, 
+            textvariable=self.rwwidth_unit_var, 
+            values=["m", "nm", "ml"], 
+            state="readonly", 
+            width=5
+        )
+        rwwidth_unit_menu.pack(side=tk.LEFT)
+        tk.Label(parent, text="(m=meters, nm=nautical miles, ml=statute miles)", font=('Arial', 8), fg='gray').grid(
             row=row, column=2, padx=5, pady=5, sticky='w'
         )
         row += 1
@@ -229,8 +275,44 @@ class WaypointDialog:
         # Prefill if editing
         if self.waypoint:
             self.rwdir_entry.insert(0, self.waypoint.runway_direction)
-            self.rwlen_entry.insert(0, self.waypoint.runway_length)
-            self.rwwidth_entry.insert(0, self.waypoint.runway_width)
+            # Parse runway length value and unit
+            rwlen_str = self.waypoint.runway_length
+            if rwlen_str:
+                if 'nm' in rwlen_str.lower():
+                    rwlen_value = rwlen_str.lower().replace('nm', '').strip()
+                    self.rwlen_entry.insert(0, rwlen_value)
+                    self.rwlen_unit_var.set('nm')
+                elif 'ml' in rwlen_str.lower():
+                    rwlen_value = rwlen_str.lower().replace('ml', '').strip()
+                    self.rwlen_entry.insert(0, rwlen_value)
+                    self.rwlen_unit_var.set('ml')
+                elif 'm' in rwlen_str.lower():
+                    rwlen_value = rwlen_str.lower().replace('m', '').strip()
+                    self.rwlen_entry.insert(0, rwlen_value)
+                    self.rwlen_unit_var.set('m')
+                else:
+                    # No unit specified, assume meters
+                    self.rwlen_entry.insert(0, rwlen_str)
+                    self.rwlen_unit_var.set('m')
+            # Parse runway width value and unit
+            rwwidth_str = self.waypoint.runway_width
+            if rwwidth_str:
+                if 'nm' in rwwidth_str.lower():
+                    rwwidth_value = rwwidth_str.lower().replace('nm', '').strip()
+                    self.rwwidth_entry.insert(0, rwwidth_value)
+                    self.rwwidth_unit_var.set('nm')
+                elif 'ml' in rwwidth_str.lower():
+                    rwwidth_value = rwwidth_str.lower().replace('ml', '').strip()
+                    self.rwwidth_entry.insert(0, rwwidth_value)
+                    self.rwwidth_unit_var.set('ml')
+                elif 'm' in rwwidth_str.lower():
+                    rwwidth_value = rwwidth_str.lower().replace('m', '').strip()
+                    self.rwwidth_entry.insert(0, rwwidth_value)
+                    self.rwwidth_unit_var.set('m')
+                else:
+                    # No unit specified, assume meters
+                    self.rwwidth_entry.insert(0, rwwidth_str)
+                    self.rwwidth_unit_var.set('m')
             self.freq_entry.insert(0, self.waypoint.frequency)
     
     def _create_details_tab(self, parent):
@@ -338,8 +420,32 @@ class WaypointDialog:
         
         # Get runway values
         rwdir = self.rwdir_entry.get().strip()
-        rwlen = self.rwlen_entry.get().strip()
-        rwwidth = self.rwwidth_entry.get().strip()
+        rwlen_text = self.rwlen_entry.get().strip()
+        # Combine runway length with unit
+        if rwlen_text:
+            try:
+                rwlen_value = float(rwlen_text)
+                rwlen_unit = self.rwlen_unit_var.get()
+                rwlen = f"{rwlen_value}{rwlen_unit}"
+            except ValueError:
+                messagebox.showerror("Invalid Input", "Runway length must be a number", parent=self.dialog)
+                return
+        else:
+            rwlen = ""
+        
+        rwwidth_text = self.rwwidth_entry.get().strip()
+        # Combine runway width with unit
+        if rwwidth_text:
+            try:
+                rwwidth_value = float(rwwidth_text)
+                rwwidth_unit = self.rwwidth_unit_var.get()
+                rwwidth = f"{rwwidth_value}{rwwidth_unit}"
+            except ValueError:
+                messagebox.showerror("Invalid Input", "Runway width must be a number", parent=self.dialog)
+                return
+        else:
+            rwwidth = ""
+        
         freq = self.freq_entry.get().strip()
         
         # Get description
@@ -369,7 +475,9 @@ class WaypointDialog:
         elev = None
         if elev_text:
             try:
-                elev = float(elev_text)
+                elev_value = float(elev_text)
+                elev_unit = self.elev_unit_var.get()
+                elev = f"{elev_value}{elev_unit}"
             except ValueError:
                 messagebox.showerror("Invalid Input", "Elevation must be a number", parent=self.dialog)
                 return

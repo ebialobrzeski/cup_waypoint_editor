@@ -80,15 +80,10 @@ def parse_cup_file(filepath: str) -> List[Waypoint]:
             lon = ddmm_to_deg(lon_str)
             style = int(style_str) if style_str else 1
             
-            # Parse elevation
+            # Parse elevation - keep as string with unit
             elev = None
             if elev_str:
-                # Remove 'm' or 'ft' suffix if present
-                elev_str_clean = elev_str.lower().rstrip('mft').strip()
-                try:
-                    elev = float(elev_str_clean)
-                except ValueError:
-                    pass
+                elev = elev_str.strip()  # Keep as-is with unit (e.g., "504.0m" or "1654ft")
             
             waypoint = Waypoint(
                 name=name,
@@ -125,12 +120,18 @@ def write_cup_file(filepath: str, waypoints: List[Waypoint], fetch_elevation: bo
     
     for waypoint in waypoints:
         # Get or fetch elevation
-        if waypoint.elevation is not None:
-            elev = waypoint.elevation
+        if waypoint.elevation is not None and waypoint.elevation != "":
+            # Elevation already has unit, use as-is
+            elev_str = str(waypoint.elevation)
+            # Ensure it has a unit
+            if not any(unit in elev_str.lower() for unit in ['m', 'ft']):
+                elev_str = f"{elev_str}m"  # Default to meters if no unit
         elif fetch_elevation:
-            elev = get_elevation(waypoint.latitude, waypoint.longitude)
+            # Fetch elevation and add default unit (meters)
+            elev_value = get_elevation(waypoint.latitude, waypoint.longitude)
+            elev_str = f"{elev_value:.1f}m"
         else:
-            elev = 0.0
+            elev_str = "0.0m"
         
         # Use description as-is (preserve empty descriptions)
         desc = waypoint.description if waypoint.description else ""
@@ -168,7 +169,7 @@ def write_cup_file(filepath: str, waypoints: List[Waypoint], fetch_elevation: bo
             f'{country},'
             f'{lat_str},'
             f'{lon_str},'
-            f'{elev:.1f}m,'
+            f'{elev_str},'
             f'{waypoint.style},'
             f'{rwdir},'
             f'{rwlen},'
@@ -204,7 +205,7 @@ def parse_csv_file(filepath: str) -> List[Waypoint]:
                     longitude=float(row['longitude']),
                     code=row.get('code', ''),
                     country=row.get('country', ''),
-                    elevation=float(row['elevation']) if row.get('elevation') else None,
+                    elevation=row.get('elevation', None) if row.get('elevation') else None,
                     style=int(row.get('style', 1)),
                     runway_direction=row.get('runway_direction', ''),
                     runway_length=row.get('runway_length', ''),

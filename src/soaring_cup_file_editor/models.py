@@ -32,7 +32,7 @@ class Waypoint:
     # Optional fields with defaults
     code: str = ""
     country: str = ""
-    elevation: Optional[float] = None
+    elevation: Optional[str] = None  # Changed to string to support units (e.g., "504.0m", "1654ft")
     style: int = 1
     runway_direction: str = ""
     runway_length: str = ""
@@ -62,26 +62,61 @@ class Waypoint:
         # Validate runway direction format if provided
         if self.runway_direction:
             self.runway_direction = self.runway_direction.strip()
-            # Common formats: "09", "09/27", "90", etc.
-            if self.runway_direction and not all(c.isdigit() or c == '/' for c in self.runway_direction):
-                raise ValueError(f"Runway direction '{self.runway_direction}' should contain only digits and '/'")
+            # CUP spec: 3-digit heading (000-359) or PG format (e.g., 115.050 or 115.055)
+            if self.runway_direction:
+                # Check if it's a simple 3-digit heading
+                if len(self.runway_direction) == 3 and self.runway_direction.isdigit():
+                    heading = int(self.runway_direction)
+                    # Accept 360 and convert to 000 (common mistake in data)
+                    if heading == 360:
+                        self.runway_direction = "000"
+                    elif not (0 <= heading <= 359):
+                        raise ValueError(f"Runway direction '{self.runway_direction}' must be 000-359")
+                # Check if it's PG format (e.g., 115.050 or 115.055)
+                elif '.' in self.runway_direction:
+                    parts = self.runway_direction.split('.')
+                    if len(parts) == 2 and parts[0].isdigit() and parts[1].isdigit():
+                        heading = int(parts[0])
+                        decimal = parts[1]
+                        if not (100 <= heading <= 359):
+                            raise ValueError(f"PG runway direction '{self.runway_direction}' heading must be 100-359")
+                        if decimal not in ['050', '055', '000']:
+                            raise ValueError(f"PG runway direction '{self.runway_direction}' decimal must be .000, .050, or .055")
+                    else:
+                        raise ValueError(f"Runway direction '{self.runway_direction}' invalid format. Use 3-digit heading (e.g., '070') or PG format (e.g., '115.050')")
+                else:
+                    raise ValueError(f"Runway direction '{self.runway_direction}' must be 3-digit heading (000-359) or PG format (e.g., '115.050')")
         
         # Validate numeric fields if provided
+        if self.elevation:
+            self.elevation = self.elevation.strip()
+            # Extract numeric value from elevation (can have 'm' or 'ft' suffix)
+            try:
+                if self.elevation:
+                    elev_clean = self.elevation.lower().replace('m', '').replace('ft', '').strip()
+                    float(elev_clean)
+            except ValueError:
+                raise ValueError(f"Elevation '{self.elevation}' must be numeric with optional unit (e.g., '504.0m', '1654ft')")
+        
         if self.runway_length:
             self.runway_length = self.runway_length.strip()
             try:
                 if self.runway_length:
-                    float(self.runway_length.rstrip('m'))  # Allow "1200" or "1200m"
+                    # Extract numeric value (can have 'm', 'nm', or 'ml' suffix)
+                    rwlen_clean = self.runway_length.lower().replace('nm', '').replace('ml', '').replace('m', '').strip()
+                    float(rwlen_clean)
             except ValueError:
-                raise ValueError(f"Runway length '{self.runway_length}' must be numeric")
+                raise ValueError(f"Runway length '{self.runway_length}' must be numeric with optional unit (e.g., '1200m', '0.65nm', '0.75ml')")
         
         if self.runway_width:
             self.runway_width = self.runway_width.strip()
             try:
                 if self.runway_width:
-                    float(self.runway_width.rstrip('m'))
+                    # Extract numeric value (can have 'm', 'nm', or 'ml' suffix)
+                    rwwidth_clean = self.runway_width.lower().replace('nm', '').replace('ml', '').replace('m', '').strip()
+                    float(rwwidth_clean)
             except ValueError:
-                raise ValueError(f"Runway width '{self.runway_width}' must be numeric")
+                raise ValueError(f"Runway width '{self.runway_width}' must be numeric with optional unit (e.g., '30m', '0.016nm', '0.019ml')")
         
         # Validate frequency format if provided
         if self.frequency:
@@ -123,7 +158,7 @@ class Waypoint:
             longitude=float(data.get('longitude', 0.0)),
             code=data.get('code', ''),
             country=data.get('country', ''),
-            elevation=float(data['elevation']) if data.get('elevation') else None,
+            elevation=data.get('elevation', None) if data.get('elevation') else None,
             style=int(data.get('style', 1)),
             runway_direction=data.get('runway_direction', ''),
             runway_length=data.get('runway_length', ''),

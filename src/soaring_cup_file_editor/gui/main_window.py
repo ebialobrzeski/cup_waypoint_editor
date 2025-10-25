@@ -127,8 +127,8 @@ class MainWindow:
         for waypoint in self.waypoints:
             style_label = STYLE_OPTIONS.get(waypoint.style, 'Unknown')
             
-            # Format elevation
-            elev_str = f"{waypoint.elevation:.1f}" if waypoint.elevation is not None else ""
+            # Format elevation (now stored as string with unit)
+            elev_str = str(waypoint.elevation) if waypoint.elevation is not None else ""
             
             # Check if airfield (has runway or frequency info)
             airfield_marker = "✓" if waypoint.is_airfield else ""
