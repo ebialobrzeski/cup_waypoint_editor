@@ -37,22 +37,22 @@ def ddmm_to_deg(coord_str: str) -> float:
 
 def deg_to_ddmm(value: float, is_lat: bool) -> str:
     """
-    Convert decimal degrees to DDMM.MMMMM format.
+    Convert decimal degrees to DDMM.MMM format.
     
     Args:
         value: Decimal degrees
         is_lat: True if latitude, False if longitude
         
     Returns:
-        Coordinate string in DDMM.MMMMMX format where X is N/S/E/W
+        Coordinate string in DDMM.MMMX format where X is N/S/E/W
         
     Example:
         >>> deg_to_ddmm(52.765234, True)
-        '5245.91404N'
+        '5245.914N'
     """
     degrees = int(abs(value))
     minutes = (abs(value) - degrees) * 60
     suffix = "N" if is_lat and value >= 0 else "S" if is_lat else "E" if value >= 0 else "W"
     deg_format = "{:02d}" if is_lat else "{:03d}"
-    # Use 5 decimal places for minutes to preserve precision
-    return f"{deg_format.format(degrees)}{minutes:08.5f}{suffix}"
+    # Use 3 decimal places for minutes per CUP specification
+    return f"{deg_format.format(degrees)}{minutes:06.3f}{suffix}"

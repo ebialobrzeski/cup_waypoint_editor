@@ -7,7 +7,7 @@ A professional graphical editor for SeeYou CUP waypoint files with **complete CU
 ### 🎯 Complete CUP Format Compliance
 - **All 12 Fields Supported**: name, code, country, coordinates, elevation, style, runway direction, runway length, runway width, frequency, description
 - **Unit Support**: Elevation (m/ft), Runway dimensions (m/nm/ml) with dropdown selectors
-- **Extended Coordinate Precision**: 5 decimal places for maximum accuracy
+- **Standard Coordinate Format**: 3 decimal places per CUP specification (DDMM.MMM format)
 - **Runway Direction Validation**: 3-digit headings (000-359) and PG format (100-359.xxx)
 - **Auto-correction**: Handles common data errors (e.g., 360° → 000°)
 
@@ -201,8 +201,8 @@ Longitude: 23.186700 (positive = East, negative = West)
 
 **CUP Output Format:**
 ```
-Latitude:  5245.91404N (DD°MM.MMMMM format)
-Longitude: 02311.20404E (DDD°MM.MMMMM format)
+Latitude:  5245.914N (DD°MM.MMM format)
+Longitude: 02311.204E (DDD°MM.MMM format)
 ```
 
 ### ⛰️ Automatic Elevation Lookup
@@ -319,8 +319,8 @@ This editor is **100% compliant** with the SeeYou CUP format specification:
 | Name (required) | ✅ Full | Must be unique and non-empty |
 | Code | ✅ Full | Optional short identifier |
 | Country | ✅ Full | IANA TLD format (2-3 chars) |
-| Latitude | ✅ Enhanced | Extended precision (5 vs 3 decimals) |
-| Longitude | ✅ Enhanced | Extended precision (5 vs 3 decimals) |
+| Latitude | ✅ Full | Standard precision (3 decimal places) |
+| Longitude | ✅ Full | Standard precision (3 decimal places) |
 | Elevation | ✅ Full | Supports m/ft units |
 | Style | ✅ Full | All 22 types (0-21) |
 | Runway Direction | ✅ Full | 3-digit or PG format, auto-corrects 360→000 |
@@ -330,7 +330,6 @@ This editor is **100% compliant** with the SeeYou CUP format specification:
 | Description | ✅ Full | Unlimited length string |
 
 **Enhancements over specification:**
-- Extended coordinate precision (11/12 chars vs 9/10) for improved accuracy
 - Auto-correction of common data errors (e.g., 360° → 000°)
 - Flexible frequency field (accepts text descriptions)
 
@@ -358,22 +357,22 @@ This editor is **100% compliant** with the SeeYou CUP format specification:
 
 **Algorithm:** WGS-1984 ellipsoid
 
-**Decimal to DDMM.MMMMM:**
+**Decimal to DDMM.MMM:**
 ```python
 degrees = int(abs(value))
 minutes = (abs(value) - degrees) * 60
-format: DD/DDD + MM.MMMMM + N/S/E/W
+format: DD/DDD + MM.MMM + N/S/E/W
 ```
 
-**DDMM.MMMMM to Decimal:**
+**DDMM.MMM to Decimal:**
 ```python
 decimal = degrees + (minutes / 60.0)
 Apply sign based on hemisphere (N/E = +, S/W = -)
 ```
 
 **Precision:**
-- 5 decimal places in minutes ≈ 1.85 meters accuracy
-- Better than spec's 3 decimals (≈ 111 meters)
+- 3 decimal places in minutes ≈ 1.85 meters accuracy
+- Follows CUP specification exactly
 
 ## 📝 Changelog
 
@@ -384,7 +383,7 @@ Apply sign based on hemisphere (N/E = +, S/W = -)
 - ✅ **Full Unit Support**: Elevation (m/ft), Runway dimensions (m/nm/ml) with dropdown selectors
 - ✅ **Runway Direction Validation**: Strict 3-digit (000-359) or PG format (100-359.xxx) validation
 - ✅ **Auto-Correction**: Converts invalid 360° to 000° automatically
-- ✅ **Extended Precision**: 5 decimal places in coordinate minutes for maximum accuracy
+- ✅ **Standard Format**: 3 decimal places in coordinate minutes per CUP specification
 - ✅ **All 22 Waypoint Types**: Complete style support (0-21)
 - ✅ **Google Maps Integration**: Paste coordinates directly from clipboard
 - ✅ **Auto-Elevation Fetch**: Automatic elevation lookup from Open-Elevation API
