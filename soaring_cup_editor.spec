@@ -61,5 +61,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=None,  # Add 'icon.ico' if you have an icon file
+    icon='icon.ico',  # Custom icon for the application
 )

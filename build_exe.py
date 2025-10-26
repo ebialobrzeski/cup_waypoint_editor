@@ -68,6 +68,7 @@ def build_executable():
             "--onefile",
             "--windowed",
             "--name", "Soaring-CUP-Editor",
+            "--icon", "icon.ico",
             "--hidden-import", "requests",
             "--hidden-import", "urllib3",
             "--hidden-import", "certifi",
